@@ -17,6 +17,8 @@ jobs:
       - run: cmake --build .
       - run: cmake --build . --target test_version
       - run: cmake --build . --target gtest_version
+      - run: ./test_version
+      - run: ./gtest_version
       - run: cmake --build . --target package
       - name: Create Release
         id: create_release
