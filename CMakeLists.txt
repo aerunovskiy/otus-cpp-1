@@ -6,6 +6,7 @@ set(PROJECT_VERSION 0.0.${PATCH_VERSION})
 project(helloworld VERSION ${PROJECT_VERSION})
 
 option(WITH_BOOST_TEST "Whether to build Boost test" ON)
+option(WITH_GTEST "Whether to build Google test" ON)
 
 configure_file(version.h.in version.h)
 
@@ -45,6 +46,22 @@ if(WITH_BOOST_TEST)
     )
 endif()
 
+if(WITH_GTEST)
+    find_package(GTest REQUIRED)
+    add_executable(gtest_version gtest_version.cpp)
+
+    set_target_properties(gtest_version PROPERTIES
+            CXX_STANDARD 14
+            CXX_STANDARD_REQUIRED ON
+    )
+
+    target_link_libraries(gtest_version
+            GTest::GTest
+            GTest::Main
+            ${PROJECT_NAME}
+    )
+endif()
+
 if(MSVC)
     target_compile_options(${PROJECT_NAME}_cli PRIVATE
             /W4
@@ -56,6 +73,12 @@ if(MSVC)
 
     if(WITH_BOOST_TEST)
         target_compile_options(test_version PRIVATE
+                /W4
+        )
+    endif()
+
+    if(WITH_GTEST)
+        target_compile_options(gtest_version PRIVATE
                 /W4
         )
     endif()
@@ -73,6 +96,12 @@ else()
                 -Wall -Wextra -pedantic -Werror
         )
     endif()
+
+    if(WITH_GTEST)
+        target_compile_options(gtest_version PRIVATE
+                -Wall -Wextra -pedantic -Werror
+        )
+    endif()
 endif()
 
 install(TARGETS ${PROJECT_NAME}_cli RUNTIME DESTINATION bin)
@@ -87,4 +116,9 @@ include(CPack)
 if(WITH_BOOST_TEST)
     enable_testing()
     add_test(test_version test_version)
+endif()
+
+if(WITH_GTEST)
+    enable_testing()
+    add_test(gtest_version gtest_version)
 endif()
