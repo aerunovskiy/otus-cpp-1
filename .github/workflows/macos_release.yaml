@@ -45,11 +45,8 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Create dmg
-        uses: QQxiaoming/create-dmg-action@v0.0.2
-        with:
-          name: helloworld-0.0.${{ github.run_number }}
-          srcdir: .
+      - run: ls -l
+      - run: pwd
 
       - name: Upload Release Asset
         id: upload-release-asset
@@ -57,10 +54,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.create_release_macos.outputs.upload_url }}
           asset_path: ./helloworld-0.0.${{ github.run_number }}.dmg
           asset_name: helloworld-0.0.${{ github.run_number }}.dmg
-          asset_content_type: application/dmg
 
       - name: upload macos artifact
         uses: actions/upload-artifact@v1
