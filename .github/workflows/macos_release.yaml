@@ -48,19 +48,19 @@ jobs:
       - name: Zip dmg file
         run: zip -r helloworld-0.0.${{ github.run_number }}-Darwin.dmg.zip helloworld-0.0.${{ github.run_number }}-Darwin.dmg
 
-#      - name: Upload macos artifact
-#        uses: actions/upload-artifact@v1
-#        with:
-#          name: helloworld-0.0.${{ github.run_number }}-Darwin.dmg
-#          path: helloworld-0.0.${{ github.run_number }}-Darwin.dmg.zip
-
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      - name: Upload macos artifact
+        uses: actions/upload-artifact@v1
         with:
-          upload_url: ${{ steps.create_release_macos.outputs.upload_url }}
-          asset_path: ./helloworld-0.0.${{ github.run_number }}-Darwin.dmg.zip
-          asset_name: helloworld-0.0.${{ github.run_number }}-Darwin.dmg
-          asset_content_type: application/zip
+          name: helloworld-0.0.${{ github.run_number }}-Darwin.dmg
+          path: helloworld-0.0.${{ github.run_number }}-Darwin.dmg.zip
+
+#      - name: Upload Release Asset
+#        id: upload-release-asset
+#        uses: actions/upload-release-asset@v1
+#        env:
+#          GITHUB_TOKEN: ${{ github.token }}
+#        with:
+#          upload_url: ${{ steps.create_release_macos.outputs.upload_url }}
+#          asset_path: ./helloworld-0.0.${{ github.run_number }}-Darwin.dmg.zip
+#          asset_name: helloworld-0.0.${{ github.run_number }}-Darwin.dmg
+#          asset_content_type: application/zip
