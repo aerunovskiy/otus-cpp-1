@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  macos-build:
+  build:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
@@ -46,7 +46,7 @@ jobs:
           prerelease: false
 
       - name: Zip dmg file
-      - run: zip -r helloworld-0.0.${{ github.run_number }}-Darwin.dmg.zip helloworld-0.0.${{ github.run_number }}-Darwin.dmg
+        run: zip -r helloworld-0.0.${{ github.run_number }}-Darwin.dmg.zip helloworld-0.0.${{ github.run_number }}-Darwin.dmg
 
 #      - name: Upload macos artifact
 #        uses: actions/upload-artifact@v1
