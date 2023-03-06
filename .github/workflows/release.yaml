@@ -6,19 +6,16 @@ on:
       - main
 
 jobs:
-  build:
-#    runs-on: ubuntu-latest
+  Linux-build:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: true
-      - run: sudo apt-get update && sudo apt-get install libboost-test-dev -y && sudo apt-get update && sudo apt-get install libgtest-dev -y
-      - run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DWITH_BOOST_TEST=ON -DWITH_GTEST=ON
+      - run: sudo apt-get update && sudo apt-get install libgtest-dev -y
+      - run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DWITH_GTEST=ON
       - run: cmake --build .
-      - run: cmake --build . --target test_version
       - run: cmake --build . --target gtest_version
-      - run: ./test_version
       - run: ./gtest_version
       - run: cmake --build . --target package
       - name: Create Release
@@ -41,3 +38,40 @@ jobs:
           asset_path: ./helloworld-0.0.${{ github.run_number }}-Linux.deb
           asset_name: helloworld-0.0.${{ github.run_number }}-Linux.deb
           asset_content_type: application/vnd.debian.binary-package
+
+  macOS-build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Install brew
+        run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+      - name: Install cmake
+        run: brew install cmake
+
+      - name: Install Google Test
+        run: brew install googletest
+
+      - name: Configure
+        run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DWITH_GTEST=ON
+
+      - name: Build
+        run: cmake --build .
+
+      - name: Build test
+        run: cmake --build . --target gtest_version
+
+      - name: Run test
+        run: ./gtest_version
+
+      - name: Build
+        run: cmake --build . --target package
+
+      - name: Create dmg
+        uses: QQxiaoming/create-dmg-action@v0.0.2
+        with:
+          name: helloworld-0.0.${{ github.run_number }}
+          srcdir: .
