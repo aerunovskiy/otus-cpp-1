@@ -7,10 +7,14 @@ project(helloworld VERSION ${PROJECT_VERSION})
 
 option(WITH_GTEST "Whether to build Google test" ON)
 
-configure_file(version.h.in version.h)
+include_directories( include )
 
-add_executable(${PROJECT_NAME}_cli main.cpp)
-add_library(${PROJECT_NAME} lib.cpp)
+AUX_SOURCE_DIRECTORY( src SRC )
+
+configure_file(include/version.h.in version.h)
+
+add_executable(${PROJECT_NAME}_cli src/main.cpp)
+add_library(${PROJECT_NAME} src/lib.cpp)
 
 set_target_properties(${PROJECT_NAME}_cli ${PROJECT_NAME} PROPERTIES
         CXX_STANDARD 14
@@ -27,7 +31,7 @@ target_link_libraries(${PROJECT_NAME}_cli PRIVATE
 
 if(WITH_GTEST)
     find_package(GTest REQUIRED)
-    add_executable(gtest_version gtest_version.cpp)
+    add_executable(gtest_version tests/gtest_version.cpp)
 
     set_target_properties(gtest_version PROPERTIES
             CXX_STANDARD 14
