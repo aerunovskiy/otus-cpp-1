@@ -1,0 +1,72 @@
+name: 'macOS C++ CI'
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Install brew
+        run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+      - name: Install cmake
+        run: brew install cmake
+
+      - name: Install Google Test
+        run: brew install googletest
+
+      - name: Configure
+        run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DWITH_GTEST=ON
+
+      - name: Build
+        run: cmake --build .
+
+      - name: Build test
+        run: cmake --build . --target gtest_version
+
+      - name: Run test
+        run: ./gtest_version
+
+      - name: Build
+        run: cmake --build . --target package
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tag_name: ${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
+          draft: false
+          prerelease: false
+
+      - name: Create dmg
+        uses: QQxiaoming/create-dmg-action@v0.0.2
+        with:
+          name: helloworld-0.0.${{ github.run_number }}
+          srcdir: .
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./helloworld-0.0.${{ github.run_number }}.dmg
+          asset_name: helloworld-0.0.${{ github.run_number }}.dmg
+          asset_content_type: application/dmg
+
+      - name: upload macos artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: uploads
+        path: helloworld-0.0.${{ github.run_number }}.dmg
