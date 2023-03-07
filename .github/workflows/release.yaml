@@ -18,6 +18,8 @@ jobs:
       - run: cmake --build . --target gtest_version
       - run: ./gtest_version
       - run: cmake --build . --target package
+      - run: ls -a
+      - run: pwd
 
       - name: Create Release
         id: create_release_linux
@@ -69,6 +71,9 @@ jobs:
 
       - name: Build
         run: cmake --build . --target package
+
+      - run: ls -a
+      - run: pwd
 
       - name: Create Release
         id: create_release_macos
