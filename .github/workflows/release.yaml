@@ -20,13 +20,13 @@ jobs:
       - run: cmake --build . --target package
 
       - name: Create Release
-        id: create_release
+        id: create_release_linux
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           tag_name: linux-${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
+          release_name: Linux release ${{ github.run_number }}
           draft: false
           prerelease: false
 
@@ -41,13 +41,56 @@ jobs:
           asset_name: helloworld-0.0.${{ github.run_number }}-Linux.deb
           asset_content_type: application/vnd.debian.binary-package
 
+
+  macos-build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Install brew
+        run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+      - name: Install Google Test
+        run: brew install googletest
+
+      - name: Configure
+        run: cmake . -DPATCH_VERSION=${{ github.run_number }} -DWITH_GTEST=ON
+
+      - name: Build
+        run: cmake --build .
+
+      - name: Build test
+        run: cmake --build . --target gtest_version
+
+      - name: Run test
+        run: ./gtest_version
+
+      - name: Build
+        run: cmake --build . --target package
+
+      - name: Create Release
+        id: create_release_macos
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tag_name: macos-${{ github.run_number }}
+          release_name: macOS release ${{ github.run_number }}
+          draft: false
+          prerelease: false
+
+      - name: Zip dmg file
+        run: zip -r helloworld-0.0.${{ github.run_number }}-Darwin.dmg.zip helloworld-0.0.${{ github.run_number }}-Darwin.dmg
+
       - name: Upload Release Asset 2 (for test)
-        id: upload-release-asset-2
+        id: upload-release-asset-macos
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./helloworld-0.0.${{ github.run_number }}-Linux2.deb
-          asset_name: helloworld-0.0.${{ github.run_number }}-Linux2.deb
-          asset_content_type: application/vnd.debian.binary-package
+          upload_url: ${{ steps.create_release_macos.outputs.upload_url }}
+          asset_path: ./helloworld-0.0.${{ github.run_number }}-Darwin.dmg
+          asset_name: helloworld-0.0.${{ github.run_number }}-Darwin.dmg
+          asset_content_type: application/octet-stream
